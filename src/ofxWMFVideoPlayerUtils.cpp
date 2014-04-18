@@ -1431,6 +1431,72 @@ return hr;
 }
 
 
+///////////////////////////////////////////////////////////////////////
+//  Name: SetPlaybackRate
+//  Description: 
+//      Gets the rate control service from Media Session.
+//      Sets the playback rate to the specified rate.
+//  Parameter:
+//      pMediaSession: [in] Media session object to query.
+//      rateRequested: [in] Playback rate to set.
+//      bThin: [in] Indicates whether to use thinning.
+///////////////////////////////////////////////////////////////////////
+// taken from MSDN example on rate control
+
+HRESULT  CPlayer::SetPlaybackRate(BOOL bThin, float rateRequested)
+{
+    HRESULT hr = S_OK;
+    IMFRateControl *pRateControl = NULL;
+
+    // Get the rate control object from the Media Session.
+    hr = MFGetService( 
+           m_pSession, 
+           MF_RATE_CONTROL_SERVICE, 
+           IID_IMFRateControl, 
+           (void**) &pRateControl ); 
+
+    // Set the playback rate.
+    if(SUCCEEDED(hr))
+    {
+        hr = pRateControl ->SetRate( bThin, rateRequested); 
+    }
+
+    // Clean up.
+    SAFE_RELEASE(pRateControl );
+
+    return hr;
+}
+
+float  CPlayer::GetPlaybackRate()
+{
+    HRESULT hr = S_OK;
+    IMFRateControl *pRateControl = NULL;
+	BOOL bThin;
+	float rate;
+
+    // Get the rate control object from the Media Session.
+    hr = MFGetService( 
+           m_pSession, 
+           MF_RATE_CONTROL_SERVICE, 
+           IID_IMFRateControl, 
+           (void**) &pRateControl ); 
+
+    // Set the playback rate.
+    if(SUCCEEDED(hr))
+    {
+        hr = pRateControl ->GetRate( &bThin, &rate); 
+    }
+
+    // Clean up.
+    SAFE_RELEASE(pRateControl );
+	if(!FAILED(hr))
+		return rate;
+	else{
+		cout << "Error: Could Not Get Rate" << endl;
+		return NULL;
+	}
+}
+
 
 
 

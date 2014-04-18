@@ -94,6 +94,10 @@ public:
 
 	float getDuration();
 	float getPosition();
+	
+	HRESULT		  SetPlaybackRate(BOOL bThin, float rateRequested); 
+	float		  GetPlaybackRate();
+	
 	float getWidth() { return _width; }
 	float getHeight() { 
 		return _height;
