@@ -38,6 +38,7 @@ class ofxWMFVideoPlayer {
 		bool _sharedTextureCreated;
 		
 		ofTexture _tex;
+
 	
 		BOOL InitInstance();
 
@@ -49,7 +50,6 @@ class ofxWMFVideoPlayer {
 	CPlayer*	_player;
 
 	int _id;
-
 	
 	ofxWMFVideoPlayer();
 	 ~ofxWMFVideoPlayer();
@@ -78,8 +78,8 @@ class ofxWMFVideoPlayer {
 	 void				setLoop(bool isLooping);
 	 bool				isLooping() { return _isLooping; }
 
-
-
+	 void				bind();
+	 void				unbind();
 	
 
 

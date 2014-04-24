@@ -171,6 +171,25 @@ void ofxWMFVideoPlayer::forceExit()
 
  }
 
+  void ofxWMFVideoPlayer::bind() {
+
+
+	 _player->m_pEVRPresenter->lockSharedTexture();
+	 _tex.bind();
+
+	 
+
+ }
+    void ofxWMFVideoPlayer::unbind() {
+
+
+	 _tex.unbind();
+	  _player->m_pEVRPresenter->unlockSharedTexture();
+
+	 
+
+ }
+
 
 bool  ofxWMFVideoPlayer:: isPlaying() {
 	return _player->GetState() == Started;
