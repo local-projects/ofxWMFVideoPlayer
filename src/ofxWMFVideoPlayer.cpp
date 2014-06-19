@@ -202,8 +202,22 @@ void	ofxWMFVideoPlayer::	update() {
 	return;
  }
 
+bool	ofxWMFVideoPlayer::getIsMovieDone( )
+{
+		bool bIsDone = false ; 
+		if ( getPosition() >= 0.99f ) 
+			bIsDone = true ; 
 
+		return bIsDone ; 
+}
 
+void	ofxWMFVideoPlayer::setPaused( bool bPause ) 
+{
+	if ( bPause == true ) 
+		pause() ; 
+	else
+		play() ; 
+}
 	
 void	ofxWMFVideoPlayer::	play() 
 {
@@ -223,9 +237,27 @@ void	ofxWMFVideoPlayer::	pause()
 	_player->Pause();
 }
 
+void 	ofxWMFVideoPlayer::setLoopState( ofLoopType loopType ) 
+{
+	switch ( loopType ) 
+	{
+		case OF_LOOP_NONE : 
+			setLoop( false ) ;
+			break ; 
+		case OF_LOOP_NORMAL : 
+			setLoop( true ) ; 
+			break; 
+		default : 
+			ofLogError ( "ofxWMFVideoPlayer::setLoopState LOOP TYPE NOT SUPPORTED" ) << loopType << endl ; 
+			break ; 
+	}
+}
 
-float 			ofxWMFVideoPlayer::	getPosition() {
-	return _player->getPosition();
+float 			ofxWMFVideoPlayer::	getPosition() 
+{
+	return ( _player->getPosition() / getDuration() ); 
+	//this returns it in seconds
+	//	return _player->getPosition();
 }
 
 float 			ofxWMFVideoPlayer::	getDuration() {

@@ -62,6 +62,7 @@ class ofxWMFVideoPlayer {
 	 void				play();
 	 void				stop();		
 	 void				pause();
+	 void				setPaused( bool bPause ) ; 
 
 	 float				getPosition();
 	 float				getDuration();
@@ -78,21 +79,16 @@ class ofxWMFVideoPlayer {
 	 void				setLoop(bool isLooping);
 	 bool				isLooping() { return _isLooping; }
 
+	 void				setLoopState( ofLoopType loopType ) ;
+	 bool				getIsMovieDone( ) ; 
 
+	 void draw(int x, int y , int w, int h);
+	 void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
 
-	
+	 HWND getHandle() { return _hwndPlayer;}
+	 LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-
-
-
-	void draw(int x, int y , int w, int h);
-	void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
-
-
-	HWND getHandle() { return _hwndPlayer;}
-	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-	static void forceExit();
+	 static void forceExit();
 
 
 };
