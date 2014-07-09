@@ -37,17 +37,18 @@ class ofxWMFVideoPlayer {
 
 		bool _sharedTextureCreated;
 		
-		ofTexture _tex;
 
 	
 		BOOL InitInstance();
 
 		
 		void                OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr);
-
+		bool				loadEventSent;
+		bool				bLoaded;
 
 	public:
 	CPlayer*	_player;
+			ofTexture _tex;
 
 	int _id;
 	
@@ -81,6 +82,7 @@ class ofxWMFVideoPlayer {
 	 void				bind();
 	 void				unbind();
 	
+		ofEvent<bool>       videoLoadEvent;
 
 
 

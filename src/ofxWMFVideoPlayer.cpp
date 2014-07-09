@@ -98,6 +98,9 @@ void ofxWMFVideoPlayer::forceExit()
 
  bool	ofxWMFVideoPlayer::	loadMovie(string name) 
  {
+	 loadEventSent = false;
+	 bLoaded = false;
+
 	 if (!_player) { 
 		ofLogError("ofxWMFVideoPlayer") << "Player not created. Can't open the movie.";
 		 return false;
@@ -146,7 +149,7 @@ void ofxWMFVideoPlayer::forceExit()
 			 _width = _player->getWidth();
 			 _height = _player->getHeight();
 
-			 _tex.allocate(_width,_height,GL_RGBA,true);
+			 _tex.allocate(_width,_height,GL_RGB,true);
 			 _player->m_pEVRPresenter->createSharedTexture(_width, _height,_tex.texData.textureID);
 
 		 }
@@ -175,6 +178,7 @@ void ofxWMFVideoPlayer::forceExit()
 
 
 	 _player->m_pEVRPresenter->lockSharedTexture();
+	 _tex.setTextureWrap(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
 	 _tex.bind();
 
 	 
@@ -268,13 +272,31 @@ void  ofxWMFVideoPlayer::setLoop(bool isLooping) { _isLooping = isLooping; _play
 //-----------------------------------
 
 
-
 // Handler for Media Session events.
 void ofxWMFVideoPlayer::OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr)
 {
     HRESULT hr = _player->HandleEvent(pUnkPtr);
+	PlayerState state;
+
+	if (_player->GetState() == 3)
+	{
+
+		if (!loadEventSent){
+			bLoaded = true;
+			ofNotifyEvent(videoLoadEvent,bLoaded,this);
+			loadEventSent = true;
+		}
+			cout << "success" << endl;
+	}
+
     if (FAILED(hr))
     {
+		if (!loadEventSent){
+			bLoaded = false;
+			ofNotifyEvent(videoLoadEvent,bLoaded,this);
+			loadEventSent = true;
+		}
+
         ofLogError("ofxWMFVideoPlayer", "An error occurred.");
     }
  }
