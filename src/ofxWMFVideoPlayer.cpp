@@ -286,7 +286,6 @@ void ofxWMFVideoPlayer::OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr)
 			ofNotifyEvent(videoLoadEvent,bLoaded,this);
 			loadEventSent = true;
 		}
-			cout << "success" << endl;
 	}
 
     if (FAILED(hr))
