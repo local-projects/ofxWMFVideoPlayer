@@ -134,7 +134,7 @@ void ofxWMFVideoPlayer::forceExit()
 		 _width = _player->getWidth();
 		 _height = _player->getHeight();
 
-		 _tex.allocate(_width,_height,GL_RGBA,true);
+		 _tex.allocate(_width,_height,GL_RGB,true);
 
 		_player->m_pEVRPresenter->createSharedTexture(_width, _height,_tex.texData.textureID);
 		_sharedTextureCreated = true;
