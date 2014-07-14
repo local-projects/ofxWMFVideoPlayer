@@ -68,8 +68,8 @@ ofxWMFVideoPlayer::ofxWMFVideoPlayer() : _player(NULL)
 ofxWMFVideoPlayer::~ofxWMFVideoPlayer() {
 	if (_player)
     {
+		if (_sharedTextureCreated) _player->m_pEVRPresenter->releaseSharedTexture();
 		_player->Shutdown();
-		//if (_sharedTextureCreated) _player->m_pEVRPresenter->releaseSharedTexture();
         SafeRelease(&_player);
     }
 
