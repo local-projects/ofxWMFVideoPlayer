@@ -32,25 +32,27 @@ ofxWMFVideoPlayer* findPlayers(HWND hwnd)
 int  ofxWMFVideoPlayer::_instanceCount=0;
 
 
-ofxWMFVideoPlayer::ofxWMFVideoPlayer() : _player(NULL)
+ofxWMFVideoPlayer::ofxWMFVideoPlayer() 
+    : _player(NULL)
+    , hasNVidiaExtensions(false)
 {
 	
 	if (_instanceCount ==0)  {
 		if (!ofIsGLProgrammableRenderer()){
-			if(wglewIsSupported("WGL_NV_DX_interop")){
+			 hasNVidiaExtensions = (wglewIsSupported("WGL_NV_DX_interop") == GL_TRUE);
++			if(hasNVidiaExtensions){{
 				ofLogVerbose("ofxWMFVideoPlayer") << "WGL_NV_DX_interop supported";
 			}else{
-				ofLogError("ofxWMFVideoPlayer") << "WGL_NV_DX_interop not supported. Upgrade your graphc drivers and try again.";
-				return;
+				ofLogError("ofxWMFVideoPlayer") << "WGL_NV_DX_interop not supported. Using CPU copy to OpenGL texture.";
 			}
 		}
 
 
 		HRESULT hr = MFStartup(MF_VERSION);
-	  if (!SUCCEEDED(hr))
-    {
-		ofLog(OF_LOG_ERROR, "ofxWMFVideoPlayer: Error while loading MF");
-    }
+	   if (!SUCCEEDED(hr))
++        {
++		    ofLog(OF_LOG_ERROR, "ofxWMFVideoPlayer: Error while loading MF");
++        }
 	}
 
 	_id = _instanceCount;
@@ -68,8 +70,8 @@ ofxWMFVideoPlayer::ofxWMFVideoPlayer() : _player(NULL)
 ofxWMFVideoPlayer::~ofxWMFVideoPlayer() {
 	if (_player)
     {
+		if (_sharedTextureCreated) _player->m_pEVRPresenter->releaseSharedTexture();
 		_player->Shutdown();
-		//if (_sharedTextureCreated) _player->m_pEVRPresenter->releaseSharedTexture();
         SafeRelease(&_player);
     }
 
@@ -134,6 +136,7 @@ void ofxWMFVideoPlayer::forceExit()
 		 _tex.allocate(_width,_height,GL_RGBA,true);
 
 		_player->m_pEVRPresenter->createSharedTexture(_width, _height,_tex.texData.textureID);
+		_player->m_pEVRPresenter->setOFTexture(&_tex);
 		_sharedTextureCreated = true;
 	 }
 	 else 
@@ -201,7 +204,46 @@ void	ofxWMFVideoPlayer::	update() {
 	}
 	return;
  }
+ 
+bool	ofxWMFVideoPlayer::getIsMovieDone( )
+{
+		bool bIsDone = false ; 
+		if ( getPosition() >= 0.99f ) 
+			bIsDone = true ; 
+ 
+		return bIsDone ; 
+}
+ 
+void	ofxWMFVideoPlayer::setPaused( bool bPause ) 
+{
+	if ( bPause == true ) 
+		pause() ; 
+	else
+		play() ; 
+}
+ 
+void 	ofxWMFVideoPlayer::setLoopState( ofLoopType loopType ) 
+{
+	switch ( loopType ) 
+	{
+		case OF_LOOP_NONE : 
+			setLoop( false ) ;
+			break ; 
+		case OF_LOOP_NORMAL : 
+			setLoop( true ) ; 
+			break; 
+		default : 
+			ofLogError ( "ofxWMFVideoPlayer::setLoopState LOOP TYPE NOT SUPPORTED" ) << loopType << endl ; 
+			break ; 
+	}
+}
 
+float 			ofxWMFVideoPlayer::	getPosition() 
+{
+	return ( _player->getPosition() / getDuration() ); 
+	//this returns it in seconds
+	//	return _player->getPosition();
+ }
 
 
 	
