@@ -1371,7 +1371,7 @@ float CPlayer::getPosition() {
 		MFTIME longPosition = 0;
 		hr = pClock->GetTime(&longPosition);
 		if (SUCCEEDED(hr))
-			position = (float)longPosition / 10000000.0;
+			position = float(longPosition / 10000000.0);
 	}
 	SafeRelease(&pClock);
 	return position;

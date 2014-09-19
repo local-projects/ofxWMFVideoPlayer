@@ -20,7 +20,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 ofxWMFVideoPlayer* findPlayers(HWND hwnd)
 {
-	for each (PlayerItem e in g_WMFVideoPlayers)
+	for (PlayerItem e : g_WMFVideoPlayers)
 	{
 		if (e.first == hwnd) return e.second;
 	}
@@ -209,6 +209,32 @@ bool	ofxWMFVideoPlayer::getIsMovieDone( )
 			bIsDone = true ; 
 
 		return bIsDone ; 
+}
+
+bool ofxWMFVideoPlayer::isLoaded(){
+	if(_player == NULL){ return false; }
+	PlayerState ps = _player->GetState();
+	return ps == PlayerState::Paused || ps == PlayerState::Stopped || ps == PlayerState::Started;
+}
+
+unsigned char * ofxWMFVideoPlayer::getPixels(){
+	if(_tex.isAllocated()){
+		_tex.readToPixels(_pixels);
+		return _pixels.getPixels();
+	}
+	return NULL;
+}
+
+bool ofxWMFVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat){
+	return (pixelFormat == OF_PIXELS_RGB);
+}
+
+ofPixelFormat ofxWMFVideoPlayer::getPixelFormat(){
+	return OF_PIXELS_RGB; 
+}
+
+bool ofxWMFVideoPlayer::isFrameNew(){
+	return true;//TODO fix this
 }
 
 void	ofxWMFVideoPlayer::setPaused( bool bPause ) 

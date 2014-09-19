@@ -17,7 +17,7 @@ class ofxWMFVideoPlayer;
 
 
 class CPlayer;
-class ofxWMFVideoPlayer {
+class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 
 	private:
 		static int  _instanceCount;
@@ -38,7 +38,8 @@ class ofxWMFVideoPlayer {
 		bool _sharedTextureCreated;
 		
 		ofTexture _tex;
-	
+		ofPixels _pixels;
+
 		BOOL InitInstance();
 
 		
@@ -81,6 +82,17 @@ class ofxWMFVideoPlayer {
 
 	 void				setLoopState( ofLoopType loopType ) ;
 	 bool				getIsMovieDone( ) ; 
+
+	 bool isLoaded();
+	 
+	 unsigned char * getPixels();
+	 ofPixels& getPixelsRef(){ return _pixels; }
+	 ofTexture * getTexture(){ return &_tex; };
+	 bool setPixelFormat(ofPixelFormat pixelFormat);
+	 ofPixelFormat getPixelFormat();
+
+	 bool isFrameNew();
+
 
 	 void draw(int x, int y , int w, int h);
 	 void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
