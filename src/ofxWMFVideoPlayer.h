@@ -17,7 +17,7 @@ class ofxWMFVideoPlayer;
 
 
 class CPlayer;
-class ofxWMFVideoPlayer {
+class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 
 	private:
 		static int  _instanceCount;
@@ -34,21 +34,28 @@ class ofxWMFVideoPlayer {
 
 		bool _waitForLoadedToPlay;
 		bool _isLooping;
+		bool _wantToSetVolume;
+		float _currentVolume;
 
 		bool _sharedTextureCreated;
 		
+		ofTexture _tex;
+		ofPixels _pixels;
 
-	
 		BOOL InitInstance();
 
 		
 		void                OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr);
+
 		bool				loadEventSent;
 		bool				bLoaded;
 
+
+		float _frameRate;
+
+
 	public:
 	CPlayer*	_player;
-			ofTexture _tex;
 
 	int _id;
 	
@@ -56,18 +63,23 @@ class ofxWMFVideoPlayer {
 	 ~ofxWMFVideoPlayer();
 
 	 bool				loadMovie(string name);
-	 bool 				loadMovie(string name_left, string name_right) ;
+	 //bool 				loadMovie(string name_left, string name_right) ;
 	 void				close();
 	 void				update();
 	
 	 void				play();
 	 void				stop();		
 	 void				pause();
+	 void				setPaused( bool bPause ) ; 
 
 	 float				getPosition();
 	 float				getDuration();
+	 float				getFrameRate();
 
 	 void				setPosition(float pos);
+
+	 void				setVolume(float vol);
+	 float				getVolume();
 
 	 float				getHeight();
 	 float				getWidth();
@@ -86,15 +98,27 @@ class ofxWMFVideoPlayer {
 
 
 
+	 void				setLoopState( ofLoopType loopType ) ;
+	 bool				getIsMovieDone( ) ; 
 
-	void draw(int x, int y , int w, int h);
-	void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
+	 bool isLoaded();
+	 
+	 unsigned char * getPixels();
+	 ofPixels& getPixelsRef(){ return _pixels; }
+	 ofTexture * getTexture(){ return &_tex; };
+	 bool setPixelFormat(ofPixelFormat pixelFormat);
+	 ofPixelFormat getPixelFormat();
+
+	 bool isFrameNew();
 
 
-	HWND getHandle() { return _hwndPlayer;}
-	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+	 void draw(int x, int y , int w, int h);
+	 void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
 
-	static void forceExit();
+	 HWND getHandle() { return _hwndPlayer;}
+	 LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	 static void forceExit();
 
 
 };

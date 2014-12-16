@@ -20,7 +20,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 ofxWMFVideoPlayer* findPlayers(HWND hwnd)
 {
-	for each (PlayerItem e in g_WMFVideoPlayers)
+	for (PlayerItem e : g_WMFVideoPlayers)
 	{
 		if (e.first == hwnd) return e.second;
 	}
@@ -60,6 +60,9 @@ ofxWMFVideoPlayer::ofxWMFVideoPlayer() : _player(NULL)
 
 	_waitForLoadedToPlay = false;
 	_sharedTextureCreated = false;
+	_wantToSetVolume = false;
+	_currentVolume = 1.0;
+	_frameRate = 0.0f;
 	
 	
 }
@@ -124,7 +127,7 @@ void ofxWMFVideoPlayer::forceExit()
 	hr = _player->OpenURL( w.c_str());
 
 	
-	 
+	_frameRate = 0.0; //reset frameRate as the new movie loaded might have a different value than previous one
 
 
 	
@@ -156,6 +159,7 @@ void ofxWMFVideoPlayer::forceExit()
 		 
 	 }
 	 _waitForLoadedToPlay = false;
+
 	 return false;
 
 	
@@ -212,6 +216,8 @@ bool  ofxWMFVideoPlayer:: isPaused()
 
  void	ofxWMFVideoPlayer::	close() {
 	 _player->Shutdown();
+	 _currentVolume = 1.0;
+	 _wantToSetVolume = false;
 
 }
 void	ofxWMFVideoPlayer::	update() {
@@ -222,11 +228,57 @@ void	ofxWMFVideoPlayer::	update() {
 		_player->Play();
 		
 	}
+
+	if ((_wantToSetVolume))
+	{
+		_player->setVolume(_currentVolume);
+
+	}
 	return;
  }
 
+bool	ofxWMFVideoPlayer::getIsMovieDone( )
+{
+		bool bIsDone = false ; 
+		if ( getPosition() >= 0.99f ) 
+			bIsDone = true ; 
 
+		return bIsDone ; 
+}
 
+bool ofxWMFVideoPlayer::isLoaded(){
+	if(_player == NULL){ return false; }
+	PlayerState ps = _player->GetState();
+	return ps == PlayerState::Paused || ps == PlayerState::Stopped || ps == PlayerState::Started;
+}
+
+unsigned char * ofxWMFVideoPlayer::getPixels(){
+	if(_tex.isAllocated()){
+		_tex.readToPixels(_pixels);
+		return _pixels.getPixels();
+	}
+	return NULL;
+}
+
+bool ofxWMFVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat){
+	return (pixelFormat == OF_PIXELS_RGB);
+}
+
+ofPixelFormat ofxWMFVideoPlayer::getPixelFormat(){
+	return OF_PIXELS_RGB; 
+}
+
+bool ofxWMFVideoPlayer::isFrameNew(){
+	return true;//TODO fix this
+}
+
+void	ofxWMFVideoPlayer::setPaused( bool bPause ) 
+{
+	if ( bPause == true ) 
+		pause() ; 
+	else
+		play() ; 
+}
 	
 void	ofxWMFVideoPlayer::	play() 
 {
@@ -246,9 +298,27 @@ void	ofxWMFVideoPlayer::	pause()
 	_player->Pause();
 }
 
+void 	ofxWMFVideoPlayer::setLoopState( ofLoopType loopType ) 
+{
+	switch ( loopType ) 
+	{
+		case OF_LOOP_NONE : 
+			setLoop( false ) ;
+			break ; 
+		case OF_LOOP_NORMAL : 
+			setLoop( true ) ; 
+			break; 
+		default : 
+			ofLogError ( "ofxWMFVideoPlayer::setLoopState LOOP TYPE NOT SUPPORTED" ) << loopType << endl ; 
+			break ; 
+	}
+}
 
-float 			ofxWMFVideoPlayer::	getPosition() {
-	return _player->getPosition();
+float 			ofxWMFVideoPlayer::	getPosition() 
+{
+	return ( _player->getPosition() / getDuration() ); 
+	//this returns it in seconds
+	//	return _player->getPosition();
 }
 
 float 			ofxWMFVideoPlayer::	getDuration() {
@@ -258,6 +328,31 @@ float 			ofxWMFVideoPlayer::	getDuration() {
 void ofxWMFVideoPlayer::setPosition(float pos)
 {
 	_player->setPosition(pos);
+}
+
+void ofxWMFVideoPlayer::setVolume(float vol)
+{
+	if ((_player ) && (_player->GetState() != OpenPending) && (_player->GetState() != Closing) && (_player->GetState() != Closed))  {
+		_player->setVolume(vol);
+		_wantToSetVolume = false;
+	}
+	else {
+		_wantToSetVolume = true;
+	}
+	_currentVolume = vol;
+
+}
+
+float ofxWMFVideoPlayer::getVolume()
+{
+	return _player->getVolume();
+}
+
+float ofxWMFVideoPlayer::getFrameRate()
+{
+	if (!_player) return 0.0f;
+	if (_frameRate == 0.0f) _frameRate = _player->getFrameRate();
+	return _frameRate;
 }
 
 float	ofxWMFVideoPlayer::getHeight() { return _player->getHeight(); }
@@ -412,4 +507,6 @@ BOOL ofxWMFVideoPlayer::InitInstance()
 
     return TRUE;
 }
+
+
 
