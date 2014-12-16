@@ -128,12 +128,12 @@ HRESULT EVRCustomPresenter::QueryInterface(REFIID riid, void ** ppv)
 
 ULONG EVRCustomPresenter::AddRef()
 {
-    return RefCountedObject::AddRef();
+    return RefCountedObject_::AddRef();
 }
 
 ULONG EVRCustomPresenter::Release()
 {
-    return RefCountedObject::Release();
+    return RefCountedObject_::Release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
