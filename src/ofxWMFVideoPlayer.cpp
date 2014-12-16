@@ -327,7 +327,7 @@ float 			ofxWMFVideoPlayer::	getDuration() {
 
 void ofxWMFVideoPlayer::setPosition(float pos)
 {
-	_player->setPosition(pos);
+	_player->setPosition(pos * getDuration());
 }
 
 void ofxWMFVideoPlayer::setVolume(float vol)
