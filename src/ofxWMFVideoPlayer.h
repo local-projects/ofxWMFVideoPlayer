@@ -17,7 +17,7 @@ class ofxWMFVideoPlayer;
 
 
 class CPlayer;
-class ofxWMFVideoPlayer {
+class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 
 	private:
 		static int  _instanceCount;
@@ -34,15 +34,21 @@ class ofxWMFVideoPlayer {
 
 		bool _waitForLoadedToPlay;
 		bool _isLooping;
+		bool _wantToSetVolume;
+		float _currentVolume;
 
 		bool _sharedTextureCreated;
 		
 		ofTexture _tex;
-	
+		ofPixels _pixels;
+
 		BOOL InitInstance();
 
 		
 		void                OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr);
+
+		float _frameRate;
+
 
 
 	public:
@@ -55,7 +61,7 @@ class ofxWMFVideoPlayer {
 	 ~ofxWMFVideoPlayer();
 
 	 bool				loadMovie(string name);
-	 bool 				loadMovie(string name_left, string name_right) ;
+	 //bool 				loadMovie(string name_left, string name_right) ;
 	 void				close();
 	 void				update();
 	
@@ -66,8 +72,12 @@ class ofxWMFVideoPlayer {
 
 	 float				getPosition();
 	 float				getDuration();
+	 float				getFrameRate();
 
 	 void				setPosition(float pos);
+
+	 void				setVolume(float vol);
+	 float				getVolume();
 
 	 float				getHeight();
 	 float				getWidth();
@@ -75,24 +85,34 @@ class ofxWMFVideoPlayer {
 	 bool				isPlaying(); 
 	 bool				isStopped();
 	 bool				isPaused();
-	 
-	 bool				setSpeed(float speed, bool useThinning = false); //thinning drops delta frames for faster playback though appears to be choppy, default is false
-	 float				getSpeed();
 
 	 void				setLoop(bool isLooping);
 	 bool				isLooping() { return _isLooping; }
 
-	void				setLoopState( ofLoopType loopType ) ;
+	 void				setLoopState( ofLoopType loopType ) ;
 	 bool				getIsMovieDone( ) ; 
 
-	void draw(int x, int y , int w, int h);
-	void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
+	 bool				setSpeed(float speed, bool useThinning = false); //thinning drops delta frames for faster playback though appears to be choppy, default is false
+	 float				getSpeed();
+
+	 bool isLoaded();
+	 
+	 unsigned char * getPixels();
+	 ofPixels& getPixelsRef(){ return _pixels; }
+	 ofTexture * getTexture(){ return &_tex; };
+	 bool setPixelFormat(ofPixelFormat pixelFormat);
+	 ofPixelFormat getPixelFormat();
+
+	 bool isFrameNew();
 
 
-	HWND getHandle() { return _hwndPlayer;}
-	LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+	 void draw(int x, int y , int w, int h);
+	 void draw(int x, int y) { draw(x,y,getWidth(),getHeight()); }
 
-	static void forceExit();
+	 HWND getHandle() { return _hwndPlayer;}
+	 LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+	 static void forceExit();
 
 
 };
