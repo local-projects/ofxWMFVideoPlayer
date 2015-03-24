@@ -84,6 +84,8 @@ public:
     HRESULT       Stop();
     HRESULT       Shutdown();
     HRESULT       HandleEvent(UINT_PTR pUnkPtr);
+	HRESULT		  GetBufferProgress(DWORD *pProgress);
+
     PlayerState   GetState() const { return m_state; }
 
 

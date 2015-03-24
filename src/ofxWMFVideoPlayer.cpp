@@ -107,23 +107,31 @@ bool	ofxWMFVideoPlayer::loadMovie(string name)
 		ofLogError("ofxWMFVideoPlayer") << "Player not created. Can't open the movie.";
 		return false;
 	}
-	DWORD fileAttr = GetFileAttributesA(ofToDataPath(name).c_str());
-	if (fileAttr == INVALID_FILE_ATTRIBUTES) {
-		stringstream s;
-		s << "The video file '" << name << "'is missing.";
-		ofLog(OF_LOG_ERROR, "ofxWMFVideoPlayer:" + s.str());
-		return false;
+
+	HRESULT hr = S_OK;
+	if(name.find("http") == string::npos){
+		DWORD fileAttr = GetFileAttributesA(ofToDataPath(name).c_str());
+		if (fileAttr == INVALID_FILE_ATTRIBUTES) {
+			stringstream s;
+			s << "The video file '" << name << "'is missing.";
+			ofLog(OF_LOG_ERROR, "ofxWMFVideoPlayer:" + s.str());
+			return false;
+		}
+		string s = ofToDataPath(name);
+		std::wstring w(s.length(), L' ');
+		std::copy(s.begin(), s.end(), w.begin());
+
+		hr = _player->OpenURL(w.c_str());
+	}
+	else{
+		string s = name;
+		std::wstring w(s.length(), L' ');
+		std::copy(s.begin(), s.end(), w.begin());
+		hr = _player->OpenURL(w.c_str());
 	}
 
 	//cout << "Videoplayer[" << _id << "] loading " << name << endl;
 
-	HRESULT hr = S_OK;
-	string s = ofToDataPath(name);
-	std::wstring w(s.length(), L' ');
-	std::copy(s.begin(), s.end(), w.begin());
-
-
-	hr = _player->OpenURL(w.c_str());
 
 
 	_frameRate = 0.0; //reset frameRate as the new movie loaded might have a different value than previous one
@@ -159,7 +167,7 @@ bool	ofxWMFVideoPlayer::loadMovie(string name)
 	}
 	_waitForLoadedToPlay = false;
 
-	return false;
+	return true;
 
 
 }
@@ -207,6 +215,9 @@ void	ofxWMFVideoPlayer::update() {
 		_player->Play();
 
 	}
+
+	DWORD d;
+	_player->GetBufferProgress(&d);
 
 	if ((_wantToSetVolume))
 	{

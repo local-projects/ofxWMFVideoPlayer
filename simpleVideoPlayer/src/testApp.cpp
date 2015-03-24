@@ -2,11 +2,10 @@
 
 //--------------------------------------------------------------
 void testApp::setup(){
-
+	playing = false;
 	ofSetFrameRate(55);
-	video.loadMovie("test.mp4");
+	video.loadMovie("http://www.cloudsdocumentary.com/uploads/Aaron_code,_story,_communication.mov");
 	video.play();
-
 	
 }
 
@@ -18,14 +17,20 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-	video.draw(0,0);
+	//if(playing){
+		video.draw(0,0);
+	//}
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 	switch(key)
 	{
-
+		case ' ':
+			{
+				video.play();
+				playing = true;
+			}
 		case '1':	
 			{
 				video.loadMovie("test.mp4");

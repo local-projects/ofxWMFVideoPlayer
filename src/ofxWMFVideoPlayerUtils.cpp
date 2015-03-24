@@ -645,6 +645,12 @@ HRESULT CPlayer::HandleEvent(UINT_PTR pEventPtr)
 	case MESessionStarted:
 
 		break;
+	case MEBufferingStarted:
+		cout << "MMM BUFFERING..." << endl;
+		break;
+	case MEBufferingStopped:
+		cout << "MMM end BUFFERING..." << endl;
+		break;
 
 	default:
 		hr = OnSessionEvent(pEvent, meType);
@@ -656,6 +662,36 @@ done:
 	return hr;
 }
 
+HRESULT CPlayer::GetBufferProgress(DWORD *pProgress)
+{
+    IPropertyStore *pProp = NULL;
+    PROPVARIANT var;
+
+    // Get the property store from the media session.
+    HRESULT hr = MFGetService(
+        m_pSession, 
+        MFNETSOURCE_STATISTICS_SERVICE, 
+        IID_PPV_ARGS(&pProp)
+        );
+
+    if (SUCCEEDED(hr))
+    {
+        PROPERTYKEY key;
+        key.fmtid = MFNETSOURCE_STATISTICS;
+        key.pid = MFNETSOURCE_BUFFERPROGRESS_ID;
+
+        hr = pProp->GetValue(key, &var);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        *pProgress = var.lVal;
+		cout << "buff prog " << *pProgress << endl;
+    }
+    PropVariantClear(&var);
+    SafeRelease(&pProp);
+    return hr;
+}
 //  Release all resources held by this object.
 HRESULT CPlayer::Shutdown()
 {

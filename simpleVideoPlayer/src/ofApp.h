@@ -1,14 +1,10 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxWMFVideoPlayer.h"
 
-class testApp : public ofBaseApp{
+class ofApp : public ofBaseApp{
 
 	public:
-
-		ofxWMFVideoPlayer video;
-		//ofVideoPlayer video;
 		void setup();
 		void update();
 		void draw();
@@ -23,5 +19,4 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-		bool playing;
 };
