@@ -49,6 +49,7 @@ enum PlayerState
 {
     Closed = 0,     // No session.
     Ready,          // Session was created, ready to open a file. 
+	AsyncURLPending,// Session is creating URL resource
     OpenPending,    // Session is opening a file.
     Started,        // Session is playing a file.
     Paused,         // Session is paused.
@@ -76,6 +77,7 @@ public:
 
     // Playback
     HRESULT       OpenURL(const WCHAR *sURL);
+	HRESULT		  EndOpenURL();
 
 	//Open multiple url in a same topology... Play with that of you want to do some video syncing
 	HRESULT       OpenMultipleURL(vector<const WCHAR *> &sURL);
@@ -145,10 +147,12 @@ protected:
 protected:
     long                    m_nRefCount;        // Reference count.
 
-    IMFSequencerSource     *m_pSequencerSource;
+    IMFSequencerSource      *m_pSequencerSource;
+	IMFSourceResolver		*m_pSourceResolver;
     IMFMediaSource          *m_pSource;
     IMFVideoDisplayControl  *m_pVideoDisplay;
-	MFSequencerElementId		_previousTopoID;
+
+	MFSequencerElementId	_previousTopoID;
     HWND                    m_hwndVideo;        // Video window.
     HWND                    m_hwndEvent;        // App window to receive events.
     PlayerState             m_state;            // Current state of the media session.

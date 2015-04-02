@@ -81,6 +81,7 @@ namespace MediaFoundationSamples
                 &ObjectType,                // Receives the created object type. 
                 &pSourceUnk                 // Receives a pointer to the media source.
                 );
+
         }
 
         // Get the IMFMediaSource interface from the media source.
@@ -92,6 +93,64 @@ namespace MediaFoundationSamples
         // Clean up
         SAFE_RELEASE(pSourceResolver);
         SAFE_RELEASE(pSourceUnk);
+
+        return hr;
+    }
+
+    inline HRESULT BeginCreateMediaSource(const WCHAR *sURL, IMFAsyncCallback *pCallback, IMFSourceResolver **pSourceResolver)
+    {
+        CheckPointer(sURL, E_POINTER);
+        CheckPointer(pSourceResolver, E_POINTER);
+        //CheckPointer(ppSource, E_POINTER);
+
+        HRESULT hr = S_OK;
+
+        IMFSourceResolver   *pSourceResolver = NULL;
+        IUnknown            *pSourceUnk = NULL;
+
+        // Create the source resolver.
+        if (SUCCEEDED(hr))
+        {
+            hr = MFCreateSourceResolver(pSourceResolver);
+        }
+
+        // Use the source resolver to create the media source.
+        if (SUCCEEDED(hr))
+        {
+            MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
+			
+            hr = (*pSourceResolver)->BeginCreateObjectFromURL(
+                sURL,                       // URL of the source.
+                MF_RESOLUTION_MEDIASOURCE,  // Create a source object.
+                NULL,                       // Optional property store.
+				NULL,						// Optional Cancel cookie (TODO: use this!)
+                pCallback,					// invoker object. 
+                NULL						// User Data.
+                );
+			/*
+            hr = pSourceResolver->CreateObjectFromURL(
+                sURL,                       // URL of the source.
+                MF_RESOLUTION_MEDIASOURCE,  // Create a source object.
+                NULL,                       // Optional property store.
+                &ObjectType,                // Receives the created object type. 
+                &pSourceUnk                 // Receives a pointer to the media source.
+                );
+			*/
+
+        }
+
+		/*
+		////// NEED TO MOVE TO END CALLBACK
+        // Get the IMFMediaSource interface from the media source.
+        if (SUCCEEDED(hr))
+        {
+            hr = pSourceUnk->QueryInterface(__uuidof(IMFMediaSource), (void**)ppSource);
+        }
+
+        // Clean up
+        SAFE_RELEASE(pSourceResolver);
+        SAFE_RELEASE(pSourceUnk);
+		*/
 
         return hr;
     }

@@ -101,6 +101,7 @@ HRESULT CPlayer::Initialize()
 CPlayer::CPlayer(HWND hVideo, HWND hEvent) :
 m_pSession(NULL),
 m_pSource(NULL),
+m_pSourceResolver(NULL),
 m_pVideoDisplay(NULL),
 m_hwndVideo(hVideo),
 m_hwndEvent(hEvent),
@@ -242,11 +243,14 @@ HRESULT CPlayer::OpenMultipleURL(vector<const WCHAR *> &urls)
 
 		const WCHAR* sURL = urls[i];
 		// Create the media source.
-		hr = CreateMediaSource(sURL, &source);
+		hr = CreateMediaSource(sURL, &source, this);
 		if (FAILED(hr))
 		{
 			goto done;
 		}
+
+		///NOW ASYNC
+		return hr;
 
 		// Create the presentation descriptor for the media source.
 		hr = source->CreatePresentationDescriptor(&pSourcePD);
@@ -331,16 +335,6 @@ HRESULT CPlayer::OpenURL(const WCHAR *sURL)
 {
 	// 1. Create a new media session.
 	// 2. Create the media source.
-	// 3. Create the topology.
-	// 4. Queue the topology [asynchronous]
-	// 5. Start playback [asynchronous - does not happen in this method.]
-
-	IMFTopology *pTopology = NULL;
-	IMFPresentationDescriptor* pSourcePD = NULL;
-
-
-
-
 
 	// Create the media session.
 	HRESULT hr = CreateSession();
@@ -350,11 +344,34 @@ HRESULT CPlayer::OpenURL(const WCHAR *sURL)
 	}
 
 	// Create the media source.
-	hr = CreateMediaSource(sURL, &m_pSource);
+	hr = BeginCreateMediaSource(sURL, this, &m_pSourceResolver);
 	if (FAILED(hr))
 	{
 		goto done;
 	}
+
+	/////MADE ASYNCHRONOUS
+	m_state = AsyncURLPending;
+
+done:
+	if (FAILED(hr))
+	{
+		m_state = Closed;
+	}
+	return hr;
+}
+
+HRESULT CPlayer::EndOpenURL()
+{
+
+	HRESULT hr;
+
+	// 3. Create the topology.
+	// 4. Queue the topology [asynchronous]
+	// 5. Start playback [asynchronous - does not happen in this method.]
+
+	IMFTopology *pTopology = NULL;
+	IMFPresentationDescriptor* pSourcePD = NULL;
 
 	// Create the presentation descriptor for the media source.
 	hr = m_pSource->CreatePresentationDescriptor(&pSourcePD);
@@ -528,11 +545,37 @@ HRESULT CPlayer::setVolume(float vol)
 HRESULT CPlayer::Invoke(IMFAsyncResult *pResult)
 {
 	MediaEventType meType = MEUnknown;  // Event type
-
 	IMFMediaEvent *pEvent = NULL;
-	if (!m_pSession) return -1; //Sometimes Invoke is called but m_pSession is closed
+	HRESULT hr;
+
+	if (!m_pSession){
+		ofLogError("CPlayer::Invoke") << "Called with a null session";
+		return -1; //Sometimes Invoke is called but m_pSession is closed
+	}
+
 	// Get the event from the event queue.
-	HRESULT hr = m_pSession->EndGetEvent(pResult, &pEvent);
+	if(m_state == AsyncURLPending){
+		if(!&m_pSourceResolver){
+			ofLogError("CPlayer::Invoke") << "Async request returned with NULL session");
+			return -1;
+		}
+
+		//TODO MOVE TO EndOpenURL() ?
+		MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
+        IUnknown            *pSourceUnk = NULL;
+
+		CheckPointer(m_pSource, E_POINTER);
+
+		hr = m_pSourceResolver->EndCreateObjectFromURL(
+				pResult,					// Invoke result
+                &ObjectType,                // Receives the created object type. 
+                &pSourceUnk                  // Receives a pointer to the media source.
+			);
+
+		return hr;
+	}
+
+	hr = m_pSession->EndGetEvent(pResult, &pEvent);
 	if (FAILED(hr))
 	{
 		goto done;
