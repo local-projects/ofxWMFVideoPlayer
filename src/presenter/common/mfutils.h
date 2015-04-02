@@ -73,7 +73,7 @@ namespace MediaFoundationSamples
         if (SUCCEEDED(hr))
         {
             MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
-
+			
             hr = pSourceResolver->CreateObjectFromURL(
                 sURL,                       // URL of the source.
                 MF_RESOLUTION_MEDIASOURCE,  // Create a source object.

@@ -349,9 +349,6 @@ HRESULT CPlayer::OpenURL(const WCHAR *sURL)
 		goto done;
 	}
 
-
-
-
 	// Create the media source.
 	hr = CreateMediaSource(sURL, &m_pSource);
 	if (FAILED(hr))
@@ -446,7 +443,7 @@ HRESULT CPlayer::setPosition(float pos)
 {
 	if (m_state == OpenPending)
 	{
-		printf("ofxWMFPlayer : Error cannot seek during opening\n");
+		ofLogError("ofxWMFPlayer", "Error cannot seek during opening");
 		return S_FALSE;
 	}
 
@@ -471,7 +468,7 @@ HRESULT CPlayer::setPosition(float pos)
 	}
 	else
 	{
-		printf("ofxWMFPlayer : Error while seeking\n");
+		ofLogError("ofxWMFPlayer", "Error while seeking");
 		return S_FALSE;
 	}
 
@@ -638,7 +635,7 @@ HRESULT CPlayer::HandleEvent(UINT_PTR pEventPtr)
 		GetEventObject<IMFTopology>(pEvent, &topology);
 		WORD nodeCount;
 		topology->GetNodeCount(&nodeCount);
-		cout << "Topo set and we have " << nodeCount << " nodes" << endl;
+		//cout << "Topo set and we have " << nodeCount << " nodes" << endl;
 		SafeRelease(&topology);
 		break;
 
@@ -686,7 +683,7 @@ HRESULT CPlayer::GetBufferProgress(DWORD *pProgress)
     if (SUCCEEDED(hr))
     {
         *pProgress = var.lVal;
-		cout << "buff prog " << *pProgress << endl;
+//		cout << "buff prog " << *pProgress << endl;
     }
     PropVariantClear(&var);
     SafeRelease(&pProp);
