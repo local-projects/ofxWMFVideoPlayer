@@ -81,7 +81,6 @@ namespace MediaFoundationSamples
                 &ObjectType,                // Receives the created object type. 
                 &pSourceUnk                 // Receives a pointer to the media source.
                 );
-
         }
 
         // Get the IMFMediaSource interface from the media source.
@@ -103,16 +102,7 @@ namespace MediaFoundationSamples
         CheckPointer(pSourceResolver, E_POINTER);
         //CheckPointer(ppSource, E_POINTER);
 
-        HRESULT hr = S_OK;
-
-        IMFSourceResolver   *pSourceResolver = NULL;
-        IUnknown            *pSourceUnk = NULL;
-
-        // Create the source resolver.
-        if (SUCCEEDED(hr))
-        {
-            hr = MFCreateSourceResolver(pSourceResolver);
-        }
+        HRESULT hr = MFCreateSourceResolver(pSourceResolver);
 
         // Use the source resolver to create the media source.
         if (SUCCEEDED(hr))

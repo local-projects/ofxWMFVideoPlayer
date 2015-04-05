@@ -4,7 +4,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\testApp.cpp" />
     <ClCompile Include="..\src\ofxWMFVideoPlayer.cpp">
       <Filter>addons\ofxWMFVideoPlayer\src</Filter>
     </ClCompile>
@@ -22,6 +21,9 @@
     </ClCompile>
     <ClCompile Include="..\src\presenter\scheduler.cpp">
       <Filter>addons\ofxWMFVideoPlayer\src\presenter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\testApp.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,7 +47,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\testApp.h" />
     <ClInclude Include="..\src\ofxWMFVideoPlayer.h">
       <Filter>addons\ofxWMFVideoPlayer\src</Filter>
     </ClInclude>
@@ -114,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="..\src\presenter\common\trace.h">
       <Filter>addons\ofxWMFVideoPlayer\src\presenter\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\testApp.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

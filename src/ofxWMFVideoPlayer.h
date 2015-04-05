@@ -31,7 +31,7 @@ class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 		int _width;
 		int _height;
 
-
+		bool _waitingForLoad;
 		bool _waitForLoadedToPlay;
 		bool _isLooping;
 		bool _wantToSetVolume;
@@ -43,7 +43,7 @@ class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 		ofPixels _pixels;
 
 		BOOL InitInstance();
-
+		bool endLoad();
 		
 		void                OnPlayerEvent(HWND hwnd, WPARAM pUnkPtr);
 
@@ -61,7 +61,7 @@ class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
 	 ~ofxWMFVideoPlayer();
 
 	 bool				loadMovie(string name);
-	 //bool 				loadMovie(string name_left, string name_right) ;
+	 bool				loadMovie(string name, bool asynchronous);
 	 void				close();
 	 void				update();
 	

@@ -49,7 +49,8 @@ enum PlayerState
 {
     Closed = 0,     // No session.
     Ready,          // Session was created, ready to open a file. 
-	AsyncURLPending,// Session is creating URL resource
+	OpenAsyncPending,// Session is creating URL resource
+	OpenAsyncComplete, // Session finished opening URL
     OpenPending,    // Session is opening a file.
     Started,        // Session is playing a file.
     Paused,         // Session is paused.
@@ -77,6 +78,7 @@ public:
 
     // Playback
     HRESULT       OpenURL(const WCHAR *sURL);
+	HRESULT		  OpenURLAsync(const WCHAR *sURL);
 	HRESULT		  EndOpenURL();
 
 	//Open multiple url in a same topology... Play with that of you want to do some video syncing

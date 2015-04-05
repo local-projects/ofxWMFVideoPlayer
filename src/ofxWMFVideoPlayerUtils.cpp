@@ -243,7 +243,7 @@ HRESULT CPlayer::OpenMultipleURL(vector<const WCHAR *> &urls)
 
 		const WCHAR* sURL = urls[i];
 		// Create the media source.
-		hr = CreateMediaSource(sURL, &source, this);
+		hr = CreateMediaSource(sURL, &source);
 		if (FAILED(hr))
 		{
 			goto done;
@@ -331,7 +331,37 @@ done:
 
 
 //  Open a URL for playback.
+
 HRESULT CPlayer::OpenURL(const WCHAR *sURL)
+{
+	// 1. Create a new media session.
+	// 2. Create the media source.
+
+	// Create the media session.
+	HRESULT hr = CreateSession();
+	if (FAILED(hr))
+	{
+		goto done;
+	}
+
+	// Create the media source.
+	hr = CreateMediaSource(sURL, &m_pSource);
+	if (FAILED(hr))
+	{
+		goto done;
+	}
+
+	EndOpenURL();
+
+done:
+	if (FAILED(hr))
+	{
+		m_state = Closed;
+	}
+	return hr;
+}
+
+HRESULT CPlayer::OpenURLAsync(const WCHAR *sURL)
 {
 	// 1. Create a new media session.
 	// 2. Create the media source.
@@ -351,7 +381,7 @@ HRESULT CPlayer::OpenURL(const WCHAR *sURL)
 	}
 
 	/////MADE ASYNCHRONOUS
-	m_state = AsyncURLPending;
+	m_state = OpenAsyncPending;
 
 done:
 	if (FAILED(hr))
@@ -359,6 +389,7 @@ done:
 		m_state = Closed;
 	}
 	return hr;
+
 }
 
 HRESULT CPlayer::EndOpenURL()
@@ -554,17 +585,16 @@ HRESULT CPlayer::Invoke(IMFAsyncResult *pResult)
 	}
 
 	// Get the event from the event queue.
-	if(m_state == AsyncURLPending){
+	if(m_state == OpenAsyncPending){
 		if(!&m_pSourceResolver){
-			ofLogError("CPlayer::Invoke") << "Async request returned with NULL session");
+			ofLogError("CPlayer::Invoke") << "Async request returned with NULL session";
 			return -1;
 		}
 
-		//TODO MOVE TO EndOpenURL() ?
 		MF_OBJECT_TYPE ObjectType = MF_OBJECT_INVALID;
-        IUnknown            *pSourceUnk = NULL;
+        IUnknown	  *pSourceUnk = NULL;
 
-		CheckPointer(m_pSource, E_POINTER);
+		//CheckPointer(m_pSource, E_POINTER);
 
 		hr = m_pSourceResolver->EndCreateObjectFromURL(
 				pResult,					// Invoke result
@@ -572,6 +602,14 @@ HRESULT CPlayer::Invoke(IMFAsyncResult *pResult)
                 &pSourceUnk                  // Receives a pointer to the media source.
 			);
 
+        // Get the IMFMediaSource interface from the media source.
+        if (SUCCEEDED(hr))
+        {
+            hr = pSourceUnk->QueryInterface(__uuidof(IMFMediaSource), (void**)(&m_pSource));
+			m_state = OpenAsyncComplete; // Session finished opening URL
+        }
+
+		SafeRelease(&pSourceUnk);
 		return hr;
 	}
 

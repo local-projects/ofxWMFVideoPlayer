@@ -59,6 +59,7 @@ ofxWMFVideoPlayer::ofxWMFVideoPlayer() : _player(NULL)
 	this->InitInstance();
 
 
+	_waitingForLoad = false;
 	_waitForLoadedToPlay = false;
 	_sharedTextureCreated = false;
 	_wantToSetVolume = false;
@@ -101,7 +102,11 @@ void ofxWMFVideoPlayer::forceExit()
 
 }
 
-bool	ofxWMFVideoPlayer::loadMovie(string name)
+bool ofxWMFVideoPlayer::loadMovie(string name){
+	return loadMovie(name, true);
+}
+
+bool ofxWMFVideoPlayer::loadMovie(string name, bool asynchronous)
 {
 	if (!_player) {
 		ofLogError("ofxWMFVideoPlayer") << "Player not created. Can't open the movie.";
@@ -121,22 +126,39 @@ bool	ofxWMFVideoPlayer::loadMovie(string name)
 		std::wstring w(s.length(), L' ');
 		std::copy(s.begin(), s.end(), w.begin());
 
-		hr = _player->OpenURL(w.c_str());
+		if(asynchronous){
+			hr = _player->OpenURLAsync(w.c_str());
+		}
+		else{
+			hr = _player->OpenURL(w.c_str());
+		}
 	}
 	else{
 		string s = name;
 		std::wstring w(s.length(), L' ');
 		std::copy(s.begin(), s.end(), w.begin());
-		hr = _player->OpenURL(w.c_str());
+		if(asynchronous){
+			hr = _player->OpenURLAsync(w.c_str());
+		}
+		else{
+			hr = _player->OpenURL(w.c_str());
+		}
 	}
 
-	//cout << "Videoplayer[" << _id << "] loading " << name << endl;
+	if(asynchronous){
+		_waitingForLoad = true;
+		return true;
+	}
+	
+	_waitForLoadedToPlay = false;
 
+	return endLoad();
 
+}
+
+bool ofxWMFVideoPlayer::endLoad(){
 
 	_frameRate = 0.0; //reset frameRate as the new movie loaded might have a different value than previous one
-
-
 
 	if (!_sharedTextureCreated)
 	{
@@ -165,14 +187,10 @@ bool	ofxWMFVideoPlayer::loadMovie(string name)
 		}
 
 	}
-	_waitForLoadedToPlay = false;
 
 	return true;
 
-
 }
-
-
 
 void ofxWMFVideoPlayer::draw(int x, int y, int w, int h) {
 
@@ -209,6 +227,13 @@ void	ofxWMFVideoPlayer::close() {
 }
 void	ofxWMFVideoPlayer::update() {
 	if (!_player) return;
+
+	if(_waitingForLoad && _player->GetState() == OpenAsyncComplete){
+		_player->EndOpenURL();
+		endLoad();
+		_waitingForLoad = false;
+	}
+
 	if ((_waitForLoadedToPlay) && _player->GetState() == Paused)
 	{
 		_waitForLoadedToPlay = false;
@@ -262,20 +287,30 @@ bool ofxWMFVideoPlayer::isFrameNew(){
 	return true;//TODO fix this
 }
 
-void	ofxWMFVideoPlayer::setPaused(bool bPause)
+void ofxWMFVideoPlayer::setPaused(bool bPause)
 {
-	if (bPause == true)
+	if (bPause){
 		pause();
-	else
+	}
+	else{
 		play();
+	}
 }
 
-void	ofxWMFVideoPlayer::play()
+void ofxWMFVideoPlayer::play()
 {
 
 	if (!_player) return;
-	if (_player->GetState() == OpenPending) _waitForLoadedToPlay = true;
-	_player->Play();
+	
+	if (_player->GetState() == OpenAsyncPending  ||
+		_player->GetState() == OpenAsyncComplete || 
+		_player->GetState() == OpenPending)
+	{
+		_waitForLoadedToPlay = true;
+	}
+	else{
+		_player->Play();
+	}
 }
 
 void	ofxWMFVideoPlayer::stop()
