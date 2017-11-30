@@ -17,7 +17,7 @@ class ofxWMFVideoPlayer;
 
 
 class CPlayer;
-class ofxWMFVideoPlayer : public ofBaseVideoPlayer {
+class ofxWMFVideoPlayer /*: public ofBaseVideoPlayer*/ {
 
 	private:
 		static int  _instanceCount;
