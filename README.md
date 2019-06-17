@@ -15,6 +15,11 @@ Prior to compiling this example you need to replace the GLEW headers and librari
 
 On top of that this addon is built against the Direct X SDK of June 2010. You'll need to install it to have the headers required for compiling the example. At the time of writing, you can download it on the [Microsoft website](http://www.microsoft.com/en-us/download/details.aspx?id=6812)
 
+## Setup
+
+In Visual Studios Project Properties, under C++ > Preprocessor > Preprocessor Definitions
+
+1. add `UNICODE` (this allows ofxWMFPlayer to load string filenames properly)
 
 ##Using the example
 
